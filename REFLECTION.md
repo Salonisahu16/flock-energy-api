@@ -1,53 +1,27 @@
 # Engineering Reflection
 
-## 1. What I Built
 
-I built a Python API client and a FastAPI wrapper for three observed Flock Energy portal operations: meter search, energy readings, and geographic coordinates.
+# Engineering Reflection
 
-I used HTTPX for HTTP requests and Pydantic models to validate and normalize upstream responses.
+## 1. What assumptions did you make?
 
-## 2. Key Design Decisions
+I assumed that the three observed read-only portal endpoints—meter search, energy readings, and geographic coordinates—were sufficient to demonstrate the core API-wrapper approach within the available time. I treated the response structures observed in the authenticated browser session as representative, while documenting that the complete API contract and independent Python authentication remain unverified.
 
-* **HTTPX:** Used to make HTTP requests to the upstream portal.
-* **FastAPI:** Used to expose the operations through REST endpoints.
-* **Pydantic:** Used to validate response structures and convert numeric strings into numeric values.
-* **Environment variables:** Used to keep session credentials outside the source code.
-* **Pytest:** Used to test the wrapper with mocked upstream methods.
+## 2. Which part was the most difficult, and how did you get unstuck?
 
-## 3. Assumptions
+The most difficult part was understanding how the legacy portal exposed its data without published API documentation. I used the browser's developer tools to inspect network requests made while navigating the portal. This helped me identify the meter search, energy, and geographic endpoints and examine their response structures. I then built a small FastAPI service around the observed operations.
 
-The implementation is based on endpoints and response fields observed in the authenticated browser session.
+## 3. If you had another day, what would you improve?
 
-I assumed the observed response structures are representative of the responses returned by those endpoints. However, the complete upstream API contract and independent Python authentication have not been verified.
+I would investigate the portal's network hierarchy and additional read-only operations, verify authentication behavior from an independent Python client, and improve upstream error handling. I would also add tests for invalid inputs, upstream failures, and unexpected response structures. If the portal provides a reliable bulk-data path, I would evaluate it before implementing local indexing or caching.
 
-## 4. Trade-offs
+## 4. What mistake did you make while solving this?
 
-Given the limited implementation time, I prioritized three read-only operations that could be observed and documented with confidence.
+I initially focused on implementing the core endpoints before fully validating the complete upstream API contract and authentication behavior. This means that the current tests demonstrate the wrapper's behavior with mocked responses, but do not establish that every live upstream request will work independently of the browser session.
 
-I did not attempt to reproduce the entire portal or infer undocumented endpoints. This limited the scope but reduced unsupported assumptions.
+## 5. If you were reviewing your own submission, what would you criticise?
 
-## 5. Testing
+The implementation covers only three observed upstream operations, and the portal's network hierarchy and other sections remain unexplored. Upstream error handling could be more precise, and live integration tests have not been established. The documentation identifies these limitations, but I would prioritise validating authentication, documenting error behavior, and testing against the live portal in a controlled, read-only manner.
 
-The current test suite covers the health endpoint, meter search, energy readings, and geographic coordinates.
 
-Upstream methods are mocked in the tests. Therefore, the tests validate the wrapper's expected behavior but do not prove that live upstream requests will always succeed.
 
-## 6. Limitations
-
-* Independent Python authentication has not been verified.
-* Pagination metadata and search matching rules are not fully documented.
-* Rate limits and retry behavior are unknown.
-* Upstream error response formats have not been fully investigated.
-* Additional portal sections have not been fully explored.
-
-## 7. Future Improvements
-
-* Improve upstream HTTP error handling.
-* Add tests for missing fields, invalid meter IDs, and upstream failures.
-* Verify authentication and unauthorized-response behavior.
-* Confirm pagination behavior and document error response formats.
-* Investigate additional endpoints if the assignment requires broader coverage.
-
-## 8. Key Learning
-
-This exercise reinforced the importance of separating observed facts from assumptions, keeping credentials out of source control, validating external API responses, and documenting unknowns rather than inventing undocumented behavior.

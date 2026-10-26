@@ -97,6 +97,62 @@ Open the interactive API documentation:
 | GET    | `/meters/{meter_id}/energy` | Retrieve energy readings        |
 | GET    | `/meters/{meter_id}/geo`    | Retrieve geographic coordinates |
 
+## Sample Requests
+
+Start the local service:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The examples below assume the service is running at `http://127.0.0.1:8000`.
+
+### Check service health
+
+```bash
+curl http://127.0.0.1:8000/
+```
+
+### Search meters
+
+```bash
+curl "http://127.0.0.1:8000/meters?q=&page=1"
+```
+
+### Retrieve energy readings
+
+```bash
+curl http://127.0.0.1:8000/meters/J100001/energy
+```
+
+### Retrieve geographic coordinates
+
+```bash
+curl http://127.0.0.1:8000/meters/J100001/geo
+```
+
+These endpoints call the upstream portal. Successful live requests depend on valid authentication and upstream availability. The automated tests use mocked client methods and do not require live portal access.
+
+## Design Decisions and Trade-offs
+
+* **FastAPI:** Provides a small REST API and generates an OpenAPI specification automatically.
+* **HTTPX:** Provides an HTTP client for communicating with the upstream portal.
+* **Pydantic:** Validates response structures and converts numeric strings to numeric values.
+* **Environment-based credentials:** Keeps the session token out of source code and version control.
+* **Limited scope:** Three observed read-only operations were prioritised over attempting to reconstruct the entire portal within the time budget.
+* **No cache or local index:** These were left out because data freshness requirements, dataset size, and bulk access behavior have not yet been established.
+
+## Intentionally Skipped
+
+The network hierarchy, additional portal sections, bulk-data access, caching, and a separate frontend were not implemented. The available time was used to build and test the API wrapper for the three observed operations.
+
+## Documentation
+
+* [Portal protocol and observations](PROTOCOL.md)
+* [API specification](openapi.json)
+* [Engineering reflection](REFLECTION.md)
+
+
 ### Search Meters
 
 `GET /meters?q=&page=1`
